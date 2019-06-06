@@ -13,7 +13,7 @@
 		library(lubridate)	
 	
 	#B. set the working directory
-		setwd("c:\\Users\\hkropp\\GitHub\\R_Intro\\2_Datasets")
+		setwd("c:\\Users\\scardarelli/Documents/research/siberia_lai/R_Intro-master/2_Datasets/")
 	
 	#C. read in thaw depth csv
 		datTD <- read.csv("thaw_depth.csv")
@@ -41,13 +41,13 @@
 		
 		#yday(as.Date output) gives a vector of day of year
 		
-		#year(as.Date output) gives a vecotr of year
+		#year(as.Date output) gives a vector of year
 	
 #3. Get the average thaw depth by site
 
 	#A. First way to get the average
 		
-		ave1 <- tapply(datTD$TD, datTD$Site, FUN="mean" )
+		ave1 <- tapply(datTD$TD, datTD$Site, FUN="mean")
 		
 		####################################################
 		############ tapply()        #######################
@@ -99,7 +99,7 @@
 						print("No unnamed sites")
 					}
 		
-		#there's a lot goinh on here
+		#there's a lot going on here
 		#we might be concerned that our ifelse statement might work but it could
 		#spit out NAs when it shouldn't, and we might not notice without scrolling 
 		#through the data.
