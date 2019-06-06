@@ -30,7 +30,8 @@ Mat.bycol
 #calculate the average value of Vec
 mean(Vec)
 #specify arguments by name and not order
-mean(na.rm=TRUE,x=Vec)
+mean(na.rm=TRUE,x=Vec)
+
 # multiply matrix by vector
 Mat.scale<-matrix(c(2,2,2,3,3,3), ncol=2,byrow=TRUE)
 Mat*Mat.scale
@@ -54,7 +55,7 @@ F.ex
 
 #set working directory 
 #this is the file path for where your file is saved
-setwd("c:\\Users\\hkropp\\GitHub\\R_Intro\\1_Intro")
+setwd("c:\\Users\\scardarelli\\Documents/research/siberia_lai/R_Intro-master/1_Intro/")
 #check what your working directory is set at
 getwd()
 
