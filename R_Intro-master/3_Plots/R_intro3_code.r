@@ -5,7 +5,7 @@
 
 
 #read in example dataset
-	datRH <- read.csv("c:\\Users\\hkropp\\Documents\\GitHub\\R_Intro\\3_Plots\\canopyRH.csv")
+	datRH <- read.csv("c:\\Users\\scardarelli/Documents/research/siberia_lai/R_Intro-master/3_Plots/R_intro3_code.r")
 	datRH$Time <- datRH$doy + (datRH$hour/24)
 
 #######################################################
@@ -17,7 +17,7 @@
 #but it can be changed to any type of data.
 
 #1. specify the directory where you will save your plots
-	plotDir <- "c:\\Users\\hkropp\\Pictures\\examplePlots"
+	plotDir <- "c:\\Users\\scardarelli/Documents/research/siberia_lai/R_Intro-master/3_Plots/plots/"
 
 #2. specify the number of panels you will need in your plot
 	pN <- 4
