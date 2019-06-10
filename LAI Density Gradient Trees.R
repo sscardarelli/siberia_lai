@@ -32,3 +32,7 @@ sum(hbr_1_fb$Foliage.biomass..g.dry.wt.)
 hdf1_1_fb<-tree_data[944:991,c(1:2,6)]
 sum(hdf1_1_fb$Foliage.biomass..g.dry.wt.)
 #should equal 21251.68, just like foliar_biomass!
+
+#rename columns
+colnames(foliar_biomass)<-c("Site","Plot","Sum of Foliage Biomass")
+foliar_biomass
