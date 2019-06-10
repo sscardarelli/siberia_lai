@@ -36,3 +36,11 @@ sum(hdf1_1_fb$Foliage.biomass..g.dry.wt.)
 #rename columns
 colnames(foliar_biomass)<-c("Site","Plot","Sum of Foliage Biomass")
 foliar_biomass
+
+#next attempt: reorganize by Site name, not Plot
+t_d_Site<-tree_data$Site
+t_d_Site
+
+SiteFB<-foliar_biomass$Site
+
+#somewhere to start at least hm
