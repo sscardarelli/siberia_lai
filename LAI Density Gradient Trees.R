@@ -70,10 +70,9 @@ high_dens$total_foliar<-7.57*high_diameter^1.73
 low_dens$total_foliar<-150.5*low_diameter
 
 #calculate leaf area using SLA for high and low density
-#this is currently using SLA with cm/g as units cause diameter is in cm and foliar in g
-high_dens$leaf_area<-high_dens$total_foliar*112.89
-low_dens$leaf_area<-low_dens$total_foliar*84.69
-#these are very high numbers and I've never done this before so idk if they're right
+#the SLA i was given was in cm^2 so i converted to m^2 for this
+high_dens$leaf_area<-high_dens$total_foliar*1.1289
+low_dens$leaf_area<-low_dens$total_foliar*0.8469
 
 #all my tables are messy/full of columns so I'm just going to condense quickly
 #you may not need to do this
@@ -81,3 +80,25 @@ low_density<-low_dens[c(1:3,6,8,9,11)]
 high_density<-high_dens[c(1:3,6,8,9,11)]
 
 #renaming columns
+colnames(high_density)<-c("Site", "Plot", "Sample Area", "Diameter (cm)", 
+                          "Density", "Foliar Biomass (g)", "Leaf Area (m^2)")
+colnames(low_density)<-c("Site", "Plot", "Sample Area", "Diameter (cm)", 
+                         "Density", "Foliar Biomass (g)", "Leaf Area (m^2)")
+
+#joining tables now as high/low are done being treated differently
+#thought might make it easier on me moving forward
+lai_data<-full_join(high_density,low_density)
+
+#now calculate LAI! add a column to the table for this
+lai_data$LAI<-lai_data$`Leaf Area (m^2)`/lai_data$`Sample Area`
+
+#condense by site and plot
+tree_lai_data<-aggregate(lai_data$LAI, by=list(lai_data$Site, lai_data$Plot), FUN=sum)
+colnames(tree_lai_data)<-c("Site", "Plot", "LAI")
+tree_lai_data<-arrange(tree_lai_data, tree_lai_data$Site)
+
+#practice making it with dplyr
+tree_lai_data1<-lai_data %>%
+  group_by(Site, Plot) %>%
+  summarise(LAI = sum(LAI)) %>%
+  arrange(Site)
