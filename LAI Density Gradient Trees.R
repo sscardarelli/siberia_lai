@@ -3,6 +3,8 @@
 
 setwed("C:/Users/scardarelli/Documents/research/siberia_lai")
 
+library(dplyr)
+
 #read in data only to row 5012 because plot value is incorrect
 tree_data<-read.csv("2010 - 2017 Density Gradient Trees 3_13_19.csv",
                     nrows=5011)[,c(2:6,12)]
@@ -37,10 +39,5 @@ sum(hdf1_1_fb$Foliage.biomass..g.dry.wt.)
 colnames(foliar_biomass)<-c("Site","Plot","Sum of Foliage Biomass")
 foliar_biomass
 
-#next attempt: reorganize by Site name, not Plot
-t_d_Site<-tree_data$Site
-t_d_Site
-
-SiteFB<-foliar_biomass$Site
-
-#somewhere to start at least hm
+#reorganize by Site name, not Plot
+fol_bio<-arrange(foliar_biomass, foliar_biomass$Site)
