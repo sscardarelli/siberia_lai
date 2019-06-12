@@ -20,7 +20,6 @@ sum(hbr_1_fb$Foliage.biomass..g.dry.wt.)
 #so from here I got the sum of just one site of one plot. this would take a loooonnnggg time
 #to do one at a time for each so. gotta figure out a quicker way.
 
-#ok think i figured it out!!!
 foliar_biomass<-aggregate(tree_data$Foliage.biomass..g.dry.wt., 
                           by=list(tree_data$Site, tree_data$Plot), FUN=sum)
 
@@ -42,7 +41,7 @@ foliar_biomass
 #reorganize by Site name, not Plot
 fol_bio<-arrange(foliar_biomass, foliar_biomass$Site)
 
-#dplyr
+#trying to generate same table from dplyr
 tree_data %>%
   group_by(Site, Plot) %>%
   summarise(total_biomass = sum(Foliage.biomass..g.dry.wt.)) %>%
@@ -89,7 +88,7 @@ colnames(low_density)<-c("Site", "Plot", "Sample Area", "Diameter (cm)",
 #thought might make it easier on me moving forward
 lai_data<-full_join(high_density,low_density)
 
-#now calculate LAI! add a column to the table for this
+#now calculate LAI and add a column to the table for this
 lai_data$LAI<-lai_data$`Leaf Area (m^2)`/lai_data$`Sample Area`
 
 #condense by site and plot
