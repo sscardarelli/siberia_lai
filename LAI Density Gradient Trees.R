@@ -76,14 +76,14 @@ low_dens$leaf_area<-low_dens$total_foliar*0.8469
 
 #all my tables are messy/full of columns so I'm just going to condense quickly
 #you may not need to do this
-low_density<-low_dens[c(1:3,6,8,9,11)]
-high_density<-high_dens[c(1:3,6,8,9,11)]
+low_density<-low_dens[c(1:3,6,9,10)]
+high_density<-high_dens[c(1:3,6,9,10)]
 
 #renaming columns
 colnames(high_density)<-c("Site", "Plot", "Sample Area", "Diameter (cm)", 
-                          "Density", "Foliar Biomass (g)", "Leaf Area (m^2)")
+                          "Foliar Biomass (g)", "Leaf Area (m^2)")
 colnames(low_density)<-c("Site", "Plot", "Sample Area", "Diameter (cm)", 
-                         "Density", "Foliar Biomass (g)", "Leaf Area (m^2)")
+                          "Foliar Biomass (g)", "Leaf Area (m^2)")
 
 #joining tables now as high/low are done being treated differently
 #thought might make it easier on me moving forward
@@ -102,3 +102,4 @@ tree_lai_data1<-lai_data %>%
   group_by(Site, Plot) %>%
   summarise(LAI = sum(LAI)) %>%
   arrange(Site)
+
