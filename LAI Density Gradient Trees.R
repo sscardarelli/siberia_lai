@@ -82,7 +82,7 @@ leaf_area1<-lai_data %>%
 #now calculate LAI and add a column to the table for this
 leaf_area$LAI<-leaf_area$`Total Leaf Area`/leaf_area$`Plot Area`
 
-#if wanted: average of all three plots in each site
+#average of all three plots in each site
 average<-aggregate(leaf_area$LAI, by=list(leaf_area$Site), FUN=mean)
 colnames(average)<-c("Site", "Average LAI")
 
@@ -90,3 +90,18 @@ colnames(average)<-c("Site", "Average LAI")
 average1<- leaf_area %>%
   group_by(Site) %>%
   summarise(Average_LAI=mean(LAI))
+
+#take standard deviation
+sd<-aggregate(leaf_area$LAI, by=list(leaf_area$Site), FUN=sd)
+colnames(sd)<-c("Site","Standard Deviation")
+
+#do this also with dplyr (for practice)
+sd1<-leaf_area %>%
+  group_by(Site) %>%
+  summarise(Standard_Deviation=sd(LAI))
+
+#join the two tables into one data sheet
+lai_trees<-full_join(average,sd)
+
+#saving as csv
+write.csv(lai_trees, "Average LAI for Density Gradient Trees")
