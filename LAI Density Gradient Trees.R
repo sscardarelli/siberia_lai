@@ -1,7 +1,7 @@
 # SC 6/10/19
 # script to calculate lai for siberia density gradient sites
 
-setwed("C:/Users/scardarelli/Documents/research/siberia_lai")
+setwd("C:/Users/scardarelli/Documents/research/siberia_lai")
 
 library(dplyr)
 
@@ -9,9 +9,7 @@ library(dplyr)
 tree_data<-read.csv("2010 - 2017 Density Gradient Trees 3_13_19.csv",
                     nrows=5011)[,c(2:7,12)]
 
-#so from here I got the sum of just one site of one plot. this would take a loooonnnggg time
-#to do one at a time for each so. gotta figure out a quicker way.
-
+#calculate the total foliar biomass
 foliar_biomass<-aggregate(tree_data$Foliage.biomass..g.dry.wt., 
                           by=list(tree_data$Site, tree_data$Plot), FUN=sum)
 
@@ -23,7 +21,7 @@ foliar_biomass
 fol_bio<-arrange(foliar_biomass, foliar_biomass$Site)
 
 #trying to generate same table from dplyr
-tree_data %>%
+foliar_biomass1<-tree_data %>%
   group_by(Site, Plot) %>%
   summarise(total_biomass = sum(Foliage.biomass..g.dry.wt.)) %>%
   arrange(Site)
@@ -75,14 +73,20 @@ leaf_area<-aggregate(lai_data$`Leaf Area (m^2)`,
 colnames(leaf_area)<-c("Site", "Plot", "Plot Area", "Total Leaf Area")
 leaf_area<-arrange(leaf_area, leaf_area$Site)
 
-#when get a chance: practice making this same table with dplyr
+#same table with dplyr
+colnames(lai_data)<-c("Site", "Plot", "Sample_Area", "Diameter", "Biomass", "Leaf_Area")
+leaf_area1<-lai_data %>%
+  group_by(Site, Plot, Sample_Area) %>%
+  summarise(Total_Area=sum(Leaf_Area))
 
 #now calculate LAI and add a column to the table for this
 leaf_area$LAI<-leaf_area$`Total Leaf Area`/leaf_area$`Plot Area`
 
-#practice making it with dplyr
-tree_lai_data1<-lai_data %>%
-  group_by(Site, Plot) %>%
-  summarise(LAI = sum(LAI)) %>%
-  arrange(Site)
+#if wanted: average of all three plots in each site
+average<-aggregate(leaf_area$LAI, by=list(leaf_area$Site), FUN=mean)
+colnames(average)<-c("Site", "Average LAI")
 
+#with dplyr
+average1<- leaf_area %>%
+  group_by(Site) %>%
+  summarise(Average_LAI=mean(LAI))
