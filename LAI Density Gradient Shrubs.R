@@ -5,9 +5,10 @@ setwd("C:/Users/scardarelli/Documents/research/siberia_lai")
 
 library(dplyr)
 
-shrub_data<-read.csv("2012 - 2017 Density Gradient Shrubs.csv") [,c(1:5,8)]
+shrub_data<-read.csv("2012 - 2017 Density Gradient Shrubs.csv")[,c(1:5,8)]
 
 #add a column for density
+#using "L" for low density and "H" for high and medium density
 shrub_data$density <- ifelse(substr(shrub_data$Site,1,1) == "L",
                          "L","H")
 
@@ -25,3 +26,7 @@ shdens<-hdens[2130:2391,]
 
 bldens<-ldens[1:2353,]
 sldens<-ldens[2354:2567,]
+
+#now that they're separated we can do the appropriate calculations to them
+#using SLA found by averaging data on SLA_sfarmer and SLA_2017
+#medium density sites will be calculated with high density SLA
