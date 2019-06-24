@@ -44,19 +44,31 @@ s<-full_join(shdens,sldens)
 leafarea<-full_join(b,s)
 
 #aggregate based on site/plot
-shrub_lai<-aggregate(leafarea$leaf_area, by=list(leafarea$Site, leafarea$Plot,
-                                                leafarea$Area.Sampled..m2.,leafarea$Species), FUN=sum)
+shrub_lai<-aggregate(leafarea$leaf_area, 
+                     by=list(leafarea$Site, leafarea$Plot,
+                             leafarea$Area.Sampled..m2.,leafarea$Species), FUN=sum)
 colnames(shrub_lai)<-c("Site", "Plot", "Plot Area", "Species","Total Leaf Area")
 shrub_lai<-arrange(shrub_lai, shrub_lai$Site)
 
 #and now calculate LAI
 shrub_lai$LAI<-shrub_lai$`Total Leaf Area`/shrub_lai$`Plot Area`
 
-#average for each site/species
-average<-aggregate(shrub_lai$LAI, by=list(shrub_lai$Site, shrub_lai$Species), FUN=ave)
+#TOMORROW: do more work with this
+#Find LAI and take average value across each site: no need for separate species
+site_lai<-aggregate(leafarea$leaf_area, 
+                    by=list(leafarea$Site, leafarea$Plot,
+                            leafarea$Area.Sampled..m2.), FUN=sum)
+colnames(site_lai)<-c("Site", "Plot", "Plot Area", "Total Leaf Area")
+site_lai$LAI<-
+
+#average/sd for each site
+average1<-aggregate(shrub_lai$LAI, by=list(shrub_lai$Site), FUN="mean")
+sd1<-aggregate(shrub_lai$LAI, by=list(shrub_lai$Site), FUN=sd)
+
+#now average/sd for each species within the site
+average<-aggregate(shrub_lai$LAI, by=list(shrub_lai$Site, shrub_lai$Species), FUN="mean")
 sd<-aggregate(shrub_lai$LAI, by=list(shrub_lai$Site, shrub_lai$Species), FUN=sd)
 
-#the average table looks wonky- repeats the calculated value for each # of plots?
 #give column names and join tables
 colnames(average)<-c("Site","Species","Average LAI")
 colnames(sd)<-c("Site","Species","Standard Deviation")
