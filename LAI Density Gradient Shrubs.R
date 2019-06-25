@@ -1,9 +1,48 @@
 #SC 6/19/19
 #script to calculate LAI for siberia density gradient shrubs
 
+#the first part of this script was taken from another script 
+#i made called "Average SLA for Betula and Salix"
+#i have included it here to have all the calculations
+#for the SLA values to be used in one place
+
 setwd("C:/Users/scardarelli/Documents/research/siberia_lai")
 
 library(dplyr)
+
+data<-read.csv("Betula_Salix data from SLA_sfarmer and SLA_2017.csv")
+
+#split by species
+bdata<-data[1:25,]
+sdata<-data[26:50,]
+
+#and aggregate each to find the average per site
+bsla<-aggregate(bdata$SLA..m2.g., by=list(bdata$Site), FUN=ave)
+ssla<-aggregate(sdata$SLA..m2.g., by=list(sdata$Site), FUN=ave)
+
+#Betula High Density= 0.0167443834166667
+#Betula Low Density= 0.0102796925384615
+#Salix High Density= 0.01454800675
+#Salix Low Density= 0.0116642552307692
+
+#now finding for sun/shade within each density site
+#no data values for low density shade, so only high density sun/shade values are calculated
+bhigh<-bdata[1:12,]
+shigh<-sdata[1:12,]
+
+bsunsla<-aggregate(bhigh$SLA..m2.g., by=list(bhigh$Sun.Shade), FUN=ave)
+ssunsla<-aggregate(shigh$SLA..m2.g., by=list(shigh$Sun.Shade), FUN=ave)
+
+#Summary:
+#Betula High Density Sun= 0.01409087
+#Betula High Density Shade= 0.01939790
+#Salix High Density Sun= 0.01409602
+#Salix High Density Shade= 0.01499999
+#so since no sun vs. shade data for low density:
+#If Betula Low Density, SLA= 0.0102796925384615
+#If Salix Low Density, SLA= 0.0116642552307692
+
+#with SLA values calculated, now we can begin working with the shrub data:
 
 shrub_data<-read.csv("2012 - 2017 Density Gradient Shrubs.csv")[,c(1:5,8)]
 
@@ -27,8 +66,7 @@ shdens<-hdens[2130:2391,]
 bldens<-ldens[1:2353,]
 sldens<-ldens[2354:2567,]
 
-#now that they're separated we can do the appropriate calculations to them for leaf area
-#using SLA found by averaging data on SLA_sfarmer and SLA_2017
+#now that they're separated we can use the appropriate SLA value
 #medium density sites will be calculated with high density SLA
 #also, to start I will assume sun for all calculations
 #later on I may try with shade value to see if there's a significant difference
@@ -43,33 +81,20 @@ b<-full_join(bhdens,bldens)
 s<-full_join(shdens,sldens)
 leafarea<-full_join(b,s)
 
-#aggregate based on site/plot
-shrub_lai<-aggregate(leafarea$leaf_area, 
-                     by=list(leafarea$Site, leafarea$Plot,
-                             leafarea$Area.Sampled..m2.,leafarea$Species), FUN=sum)
-colnames(shrub_lai)<-c("Site", "Plot", "Plot Area", "Species","Total Leaf Area")
-shrub_lai<-arrange(shrub_lai, shrub_lai$Site)
-
-#and now calculate LAI
-shrub_lai$LAI<-shrub_lai$`Total Leaf Area`/shrub_lai$`Plot Area`
-
-#TOMORROW: do more work with this
 #Find LAI and take average value across each site: no need for separate species
 site_lai<-aggregate(leafarea$leaf_area, 
                     by=list(leafarea$Site, leafarea$Plot,
                             leafarea$Area.Sampled..m2.), FUN=sum)
 colnames(site_lai)<-c("Site", "Plot", "Plot Area", "Total Leaf Area")
-site_lai$LAI<-
 
-#average/sd for each site
-average1<-aggregate(shrub_lai$LAI, by=list(shrub_lai$Site), FUN="mean")
-sd1<-aggregate(shrub_lai$LAI, by=list(shrub_lai$Site), FUN=sd)
+site_lai$LAI<-site_lai$`Total Leaf Area`/site_lai$`Plot Area`
 
-#now average/sd for each species within the site
-average<-aggregate(shrub_lai$LAI, by=list(shrub_lai$Site, shrub_lai$Species), FUN="mean")
-sd<-aggregate(shrub_lai$LAI, by=list(shrub_lai$Site, shrub_lai$Species), FUN=sd)
+average<-aggregate(site_lai$LAI, by=list(site_lai$Site), FUN="mean")
+colnames(average)<-c("Site","Average LAI")
 
-#give column names and join tables
-colnames(average)<-c("Site","Species","Average LAI")
-colnames(sd)<-c("Site","Species","Standard Deviation")
-lai_shrubs<-full_join(average,sd)
+sd<-aggregate(site_lai$LAI, by=list(site_lai$Site), FUN=sd)
+colnames(sd)<-c("Site","Standard Deviation")
+
+lai<-full_join(average,sd)
+
+write.csv(lai,"Average LAI for Density Gradient Shrubs")
