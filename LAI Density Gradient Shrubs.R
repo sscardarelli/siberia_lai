@@ -98,3 +98,35 @@ colnames(sd)<-c("Site","Standard Deviation")
 lai<-full_join(average,sd)
 
 write.csv(lai,"Average LAI for Density Gradient Shrubs")
+
+#making a bar graph to compare trees and shrubs
+trees<-read.csv("Average LAI for Density Gradient Trees") [,2:3]
+colnames(trees)<-c("Site", "Average Tree LAI")
+
+shrubs<-read.csv("Average LAI for Density Gradient Shrubs") [,2:3]
+colnames(shrubs)<-c("Site", "Average Shrub LAI")
+
+raw_data<-full_join(trees, shrubs)[c(1:3,5:15,17:25),]
+rownames(raw_data)<-data$Site
+
+data<-t(data[,2:3])
+barplot(data, xlab="Site", ylab="Average LAI", 
+        main="Average LAI of Density Gradient Trees and Shrubs",
+        col=c("palegreen4", "chocolate4"),legend=rownames(data),beside=TRUE)
+
+#comparing % betula vs salix in each stand
+#finding the leaf area of each species
+stand_area<-aggregate(leafarea$leaf_area, 
+                    by=list(leafarea$Site, leafarea$Plot,
+                            leafarea$Area.Sampled..m2., leafarea$Species), FUN=sum)
+colnames(stand_area)<-c("Site", "Plot", "Plot Area", "Species", "Total Leaf Area")
+
+#split into betula/salix...?
+bstand_area<-stand_area[1:72,]
+sstand_area<-stand_area[73:131,]
+
+#we can compare this to the total leaf area of all shrubs we found in site_lai
+#(stand_area$fraction<-aggregate(stand_area$`Total Leaf Area`, 
+                               #by=list(stand_area$Site, stand_area$Species), 
+                               #FUN=(stand_area$`Total Leaf Area`/site_lai$`Total Leaf Area`))
+                                #this does not work plz fix)
