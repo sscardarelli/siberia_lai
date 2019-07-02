@@ -81,23 +81,32 @@ b<-full_join(bhdens,bldens)
 s<-full_join(shdens,sldens)
 leafarea<-full_join(b,s)
 
-#Find LAI and take average value across each site: no need for separate species
+#find the sum of the leaf area in each site/plot
 site_lai<-aggregate(leafarea$leaf_area, 
                     by=list(leafarea$Site, leafarea$Plot,
                             leafarea$Area.Sampled..m2.), FUN=sum)
 colnames(site_lai)<-c("Site", "Plot", "Plot Area", "Total Leaf Area")
 
+#calculate LAI
 site_lai$LAI<-site_lai$`Total Leaf Area`/site_lai$`Plot Area`
 
+#find the average value for each site
 average<-aggregate(site_lai$LAI, by=list(site_lai$Site), FUN="mean")
 colnames(average)<-c("Site","Average LAI")
 
+#find the standard deviation for each site
 sd<-aggregate(site_lai$LAI, by=list(site_lai$Site), FUN=sd)
 colnames(sd)<-c("Site","Standard Deviation")
 
+#i combined them into one chart here
 lai<-full_join(average,sd)
 
 write.csv(lai,"Average LAI for Density Gradient Shrubs")
+
+
+#IN THE REMAINDER OF THIS CODE: various other things comparing tree and shrub data
+#much of this assumes the script for LAI Density Gradient Trees has already been run
+#or at least that you have the csv files
 
 #making a bar graph to compare trees and shrubs
 trees<-read.csv("Average LAI for Density Gradient Trees") [,2:3]
@@ -114,19 +123,41 @@ barplot(data, xlab="Site", ylab="Average LAI",
         main="Average LAI of Density Gradient Trees and Shrubs",
         col=c("palegreen4", "chocolate4"),legend=rownames(data),beside=TRUE)
 
-#comparing % betula vs salix in each stand
+
+#comparing % betula vs salix in each shrub site
+#NOTE: i am probably doing this in a weird/wrong/roundabout way.
 #finding the leaf area of each species
-stand_area<-aggregate(leafarea$leaf_area, 
+stand_area1<-aggregate(leafarea$leaf_area, 
                     by=list(leafarea$Site, leafarea$Plot,
                             leafarea$Area.Sampled..m2., leafarea$Species), FUN=sum)
 colnames(stand_area)<-c("Site", "Plot", "Plot Area", "Species", "Total Leaf Area")
 
-#split into betula/salix...?
+#split into betula/salix
 bstand_area<-stand_area[1:72,]
 sstand_area<-stand_area[73:131,]
 
-#we can compare this to the total leaf area of all shrubs we found in site_lai
-#(stand_area$fraction<-aggregate(stand_area$`Total Leaf Area`, 
-                               #by=list(stand_area$Site, stand_area$Species), 
-                               #FUN=(stand_area$`Total Leaf Area`/site_lai$`Total Leaf Area`))
-                                #this does not work plz fix)
+#join them into a new table to compare species on each site
+#each species isn't in each plot, so i'll have to make sure to deal with NA values
+species<-full_join(bstand_area,sstand_area, by=c("Site","Plot","Plot Area"))
+colnames(species)<-c("Site","Plot","Plot Area","Betula","Betula Area","Salix","Salix Area")
+
+#making the NA values equal zero
+species$`Salix Area`[is.na(species$`Salix Area`)]<-0
+species$`Betula Area`[is.na(species$`Betula Area`)]<-0
+
+#adding betula and salix total area
+species$'B+S'<-species$`Betula Area`+species$`Salix Area`
+
+#dividing each species by the total area to find fraction
+species$'Fraction of Betula'<-species$`Betula Area`/species$`B+S`
+species$'Fraction of Salix'<-species$`Salix Area`/species$`B+S`
+
+#condensing that into one nice little table
+plot_fraction<-species[,c(1,2,9,10)]
+
+#or if you want to see based on overall site, not plot:
+betula<-aggregate(species$`Fraction of Betula`,by=list(species$Site), FUN="mean")
+colnames(betula)<-c("Site", "Fraction of Betula")
+salix<-aggregate(species$`Fraction of Salix`,by=list(species$Site), FUN="mean")
+colnames(salix)<-c("Site", "Fraction of Salix")
+site_fraction<-full_join(betula,salix)
