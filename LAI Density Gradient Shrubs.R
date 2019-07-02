@@ -107,9 +107,9 @@ shrubs<-read.csv("Average LAI for Density Gradient Shrubs") [,2:3]
 colnames(shrubs)<-c("Site", "Average Shrub LAI")
 
 raw_data<-full_join(trees, shrubs)[c(1:3,5:15,17:25),]
-rownames(raw_data)<-data$Site
 
-data<-t(data[,2:3])
+data<-t(raw_data[,2:3])
+colnames(data)<-raw_data$Site
 barplot(data, xlab="Site", ylab="Average LAI", 
         main="Average LAI of Density Gradient Trees and Shrubs",
         col=c("palegreen4", "chocolate4"),legend=rownames(data),beside=TRUE)
