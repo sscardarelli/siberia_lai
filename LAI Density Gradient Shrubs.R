@@ -16,31 +16,38 @@ data<-read.csv("Betula_Salix data from SLA_sfarmer and SLA_2017.csv")
 bdata<-data[1:25,]
 sdata<-data[26:50,]
 
-#and aggregate each to find the average per site
-bsla<-aggregate(bdata$SLA..m2.g., by=list(bdata$Site), FUN=ave)
-ssla<-aggregate(sdata$SLA..m2.g., by=list(sdata$Site), FUN=ave)
+#first, finding low density 
+#as the high density plots will vary based on sun/shade value, those come next
+bsla<-aggregate(bdata$SLA..m2.g., by=list(bdata$Site), FUN="mean")
 
-#Betula High Density= 0.0167443834166667
-#Betula Low Density= 0.0102796925384615
-#Salix High Density= 0.01454800675
-#Salix Low Density= 0.0116642552307692
+#naming this value in case sla value is ever changed/recalculated
+#so won't have to go through the whole code changing it
+b.l.sla<-bsla[2,2]
 
-#now finding for sun/shade within each density site
-#no data values for low density shade, so only high density sun/shade values are calculated
+#same for salix
+ssla<-aggregate(sdata$SLA..m2.g., by=list(sdata$Site), FUN="mean")
+s.l.sla<-ssla[2,2]
+
+#now finding high density values based on sun vs shade
+#NOTE: as only high density had data for sun vs shade, i will not put an "h" in front
 bhigh<-bdata[1:12,]
 shigh<-sdata[1:12,]
 
-bsunsla<-aggregate(bhigh$SLA..m2.g., by=list(bhigh$Sun.Shade), FUN=ave)
-ssunsla<-aggregate(shigh$SLA..m2.g., by=list(shigh$Sun.Shade), FUN=ave)
+bsunsla<-aggregate(bhigh$SLA..m2.g., by=list(bhigh$Sun.Shade), FUN="mean")
+b.sun.sla<-bsunsla[2,2]
+b.shade.sla<-bsunsla[1,2]
+
+ssunsla<-aggregate(shigh$SLA..m2.g., by=list(shigh$Sun.Shade), FUN="mean")
+s.sun.sla<-ssunsla[2,2]
+s.shade.sla<-ssunsla[1,2]
 
 #Summary:
 #Betula High Density Sun= 0.01409087
 #Betula High Density Shade= 0.01939790
 #Salix High Density Sun= 0.01409602
 #Salix High Density Shade= 0.01499999
-#so since no sun vs. shade data for low density:
-#If Betula Low Density, SLA= 0.0102796925384615
-#If Salix Low Density, SLA= 0.0116642552307692
+#Betula Low Density, SLA= 0.0102796925384615
+#Salix Low Density, SLA= 0.0116642552307692
 
 #with SLA values calculated, now we can begin working with the shrub data:
 
@@ -51,40 +58,25 @@ shrub_data<-read.csv("2012 - 2017 Density Gradient Shrubs.csv")[,c(1:5,8)]
 shrub_data$density <- ifelse(substr(shrub_data$Site,1,1) == "L",
                          "L","H")
 
-#split by density
-by_dens<-arrange(shrub_data, shrub_data$density)
-hdens<-by_dens[1:2391,]
-ldens<-by_dens[2392:4958,]
+shrub_data$species <- ifelse(substr(shrub_data$Species,1,1) == "B",
+                             "B","S")
 
-#split by species
-hdens<-arrange(hdens, hdens$Species)
-ldens<-arrange(ldens, ldens$Species)
+shrub_data$species.density<-paste(shrub_data$density,shrub_data$species)
 
-bhdens<-hdens[1:2129,]
-shdens<-hdens[2130:2391,]
+colnames(shrub_data)<-c("Site", "Plot", "Plot Area", "Species", "B.D.", 
+                        "New Growth", "density", "species", "species.density")
 
-bldens<-ldens[1:2353,]
-sldens<-ldens[2354:2567,]
-
-#now that they're separated we can use the appropriate SLA value
-#medium density sites will be calculated with high density SLA
-#also, to start I will assume sun for all calculations
-#later on I may try with shade value to see if there's a significant difference
-
-bhdens$leaf_area<-bhdens$New.Growth.Bio..g.dry.wt.*0.01409087
-bldens$leaf_area<-bldens$New.Growth.Bio..g.dry.wt.*0.0102796925384615
-shdens$leaf_area<-shdens$New.Growth.Bio..g.dry.wt.*0.01409602
-sldens$leaf_area<-sldens$New.Growth.Bio..g.dry.wt.*0.0116642552307692
-
-#now i'm going to full join the tables to sum up leaf area for each site
-b<-full_join(bhdens,bldens)
-s<-full_join(shdens,sldens)
-leafarea<-full_join(b,s)
+shrub_data$leaf.area<-ifelse(substr(shrub_data$species.density,1,3)=="H B", shrub_data$`New Growth`*b.sun.sla,
+                             ifelse(substr(shrub_data$species.density,1,3)== "L B", 
+                                    shrub_data$`New Growth`*b.l.sla,
+                                    ifelse(substr(shrub_data$species.density,1,3)=="H S", 
+                                           shrub_data$`New Growth`*s.sun.sla, 
+                                           shrub_data$`New Growth`*s.l.sla)))
 
 #find the sum of the leaf area in each site/plot
-site_lai<-aggregate(leafarea$leaf_area, 
-                    by=list(leafarea$Site, leafarea$Plot,
-                            leafarea$Area.Sampled..m2.), FUN=sum)
+site_lai<-aggregate(shrub_data$leaf.area, 
+                    by=list(shrub_data$Site, shrub_data$Plot,
+                            shrub_data$`Plot Area`), FUN=sum)
 colnames(site_lai)<-c("Site", "Plot", "Plot Area", "Total Leaf Area")
 
 #calculate LAI
@@ -123,6 +115,8 @@ barplot(data, xlab="Site", ylab="Average LAI",
         main="Average LAI of Density Gradient Trees and Shrubs",
         col=c("palegreen4", "chocolate4"),legend=rownames(data),beside=TRUE)
 
+
+#NOTE: After my 7/3/19 update everything below here needs to be updated!!!
 
 #comparing % betula vs salix in each shrub site
 #NOTE: i am probably doing this in a weird/wrong/roundabout way.
