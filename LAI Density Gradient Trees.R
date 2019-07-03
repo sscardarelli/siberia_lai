@@ -20,6 +20,8 @@ tree_data$dens <- ifelse(substr(tree_data$Site,1,1) == "L",
 tree_data$foliar.biomass<-ifelse(substr(tree_data$dens,1,1)=="L", 
                                  150.5*tree_data$Diam..cm., 7.57*tree_data$Diam..cm.^1.73)
 
+#calculate leaf area
+#SLA was given to me in centimeters, so i converted it to meters:
 tree_data$leaf.area<-ifelse(substr(tree_data$dens,1,1)=="L",
                             tree_data$foliar.biomass*(84.69/10000),
                             tree_data$foliar.biomass*(112.89/10000))

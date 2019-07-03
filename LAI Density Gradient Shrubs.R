@@ -58,14 +58,17 @@ shrub_data<-read.csv("2012 - 2017 Density Gradient Shrubs.csv")[,c(1:5,8)]
 shrub_data$density <- ifelse(substr(shrub_data$Site,1,1) == "L",
                          "L","H")
 
+#adding another column for species (just with first letter)
 shrub_data$species <- ifelse(substr(shrub_data$Species,1,1) == "B",
                              "B","S")
 
+#combining the two to differentiate species and density
 shrub_data$species.density<-paste(shrub_data$density,shrub_data$species)
 
 colnames(shrub_data)<-c("Site", "Plot", "Plot Area", "Species", "B.D.", 
                         "New Growth", "density", "species", "species.density")
 
+#using these, calculating the leaf area with the appropriate SLA
 shrub_data$leaf.area<-ifelse(substr(shrub_data$species.density,1,3)=="H B", shrub_data$`New Growth`*b.sun.sla,
                              ifelse(substr(shrub_data$species.density,1,3)== "L B", 
                                     shrub_data$`New Growth`*b.l.sla,
