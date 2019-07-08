@@ -119,15 +119,15 @@ barplot(data, xlab="Site", ylab="Average LAI",
         col=c("palegreen4", "chocolate4"),legend=rownames(data),beside=TRUE)
 
 
-#NOTE: After my 7/3/19 update everything below here needs to be updated!!!
-
 #comparing % betula vs salix in each shrub site
 #NOTE: i am probably doing this in a weird/wrong/roundabout way.
 #finding the leaf area of each species
-stand_area1<-aggregate(leafarea$leaf_area, 
-                    by=list(leafarea$Site, leafarea$Plot,
-                            leafarea$Area.Sampled..m2., leafarea$Species), FUN=sum)
-colnames(stand_area)<-c("Site", "Plot", "Plot Area", "Species", "Total Leaf Area")
+stand_area1<-aggregate(shrub_data$leaf.area, 
+                       by=list(shrub_data$Site, shrub_data$Plot,
+                               shrub_data$`Plot Area`, shrub_data$Species), FUN=sum)
+colnames(stand_area1)<-c("Site", "Plot", "Plot Area", "Species", "Total Leaf Area")
+
+stand_area1$LAI<-stand_area1$`Total Leaf Area`/stand_area1$`Plot Area`
 
 #split into betula/salix
 bstand_area<-stand_area[1:72,]
