@@ -1,7 +1,7 @@
 #SC 6/19/19
 #script to calculate LAI for siberia density gradient shrubs
 
-#the first part of this script was taken from another script 
+#the first part of this script is modified from another script 
 #i made called "Average SLA for Betula and Salix"
 #i have included it here to have all the calculations
 #for the SLA values to be used in one place
@@ -114,9 +114,40 @@ raw_data<-full_join(trees, shrubs)[c(1:3,5:15,17:25),]
 
 data<-t(raw_data[,2:3])
 colnames(data)<-raw_data$Site
-barplot(data, xlab="Site", ylab="Average LAI", 
+barplot(data, xlab="Site", ylab="Average LAI", las=2,
         main="Average LAI of Density Gradient Trees and Shrubs",
         col=c("palegreen4", "chocolate4"),legend=rownames(data),beside=TRUE)
+
+
+#plots for each density
+#high density sites
+trees<-read.csv("Average LAI for Density Gradient Trees") [,2:3]
+colnames(trees)<-c("Site", "Average Tree LAI")
+
+shrubs<-read.csv("Average LAI for Density Gradient Shrubs") [,2:3]
+colnames(shrubs)<-c("Site", "Average Shrub LAI")
+
+raw_data<-full_join(trees, shrubs)[c(1:3,5:15,17:25),]
+
+high_data<-t(raw_data[1:10,2:3])
+colnames(high_data)<-raw_data$Site[1:10]
+barplot(high_data, xlab="Site", ylab="Average LAI", las=2,
+        main="Average LAI of High Density Gradient Trees and Shrubs",
+        col=c("palegreen4", "chocolate4"),legend=rownames(high_data),beside=TRUE)
+
+#medium density sites
+med_data<-t(raw_data[18:23,2:3])
+colnames(med_data)<-raw_data$Site[18:23]
+barplot(med_data, xlab="Site", ylab="Average LAI", las=2,
+        main="Average LAI of Medium Density Gradient Trees and Shrubs",
+        col=c("palegreen4", "chocolate4"),legend=rownames(med_data),beside=TRUE)
+
+#low density sites
+low_data<-t(raw_data[11:17,2:3])
+colnames(low_data)<-raw_data$Site[11:17]
+barplot(low_data, xlab="Site", ylab="Average LAI", las=2,
+        main="Average LAI of Low Density Gradient Trees and Shrubs",
+        col=c("palegreen4", "chocolate4"),legend=rownames(low_data),beside=TRUE)
 
 
 #comparing % betula vs salix in each shrub site
@@ -150,7 +181,7 @@ species$'B+S'<-species$`Betula Area`+species$`Salix Area`
 species$'Fraction of Betula'<-species$`Betula Area`/species$`B+S`
 species$'Fraction of Salix'<-species$`Salix Area`/species$`B+S`
 
-#condensing that into one nice little table
+#condensing into one data frame
 plot_fraction<-species[,c(1,2,9,10)]
 
 #or if you want to see based on overall site, not plot:
@@ -159,3 +190,65 @@ colnames(betula)<-c("Site", "Fraction of Betula")
 salix<-aggregate(species$`Fraction of Salix`,by=list(species$Site), FUN="mean")
 colnames(salix)<-c("Site", "Fraction of Salix")
 site_fraction<-full_join(betula,salix)
+
+
+#making plots for fraction within each site and plot
+#first: within each site
+site<-t(site_fraction[,2:3])
+colnames(site)<-site_fraction$Site
+barplot(site, xlab="Site", ylab="Average LAI", las=2,
+        main="Fraction of Shrub Species in Each Site",
+        col=c("darkturquoise", "coral"),legend=rownames(site),beside=TRUE)
+
+#the above has the bars next to each other. i'm going to make another to view the fraction
+#as a section of each bar. up to preference!
+
+barplot(site, xlab="Site", ylab="Average LAI", las=2,
+        main="Fraction of Shrub Species in Each Site",
+        col=c("darkturquoise", "coral"),legend=rownames(site),beside=FALSE)
+
+#those graphs are very cramped. splitting into high/medium/low density
+#im going to make them all for now the second way i did above.
+#to change, just change beside from FALSE to TRUE!
+#high density sites
+high_site<-t(site_fraction[1:10,2:3])
+colnames(high_site)<-site_fraction$Site[1:10]
+barplot(high_site, xlab="Site", ylab="Average LAI", las=2,
+        main="Fraction of Shrub Species in High Density Sites",
+        col=c("darkturquoise", "coral"),legend=rownames(high_site),beside=FALSE)
+
+#medium density sites
+med_site<-t(site_fraction[18:24,2:3])
+colnames(med_site)<-site_fraction$Site[18:24]
+barplot(med_site, xlab="Site", ylab="Average LAI", las=2,
+        main="Fraction of Shrub Species in Medium Density Sites",
+        col=c("darkturquoise", "coral"),legend=rownames(med_site),beside=FALSE)
+
+#low density sites
+low_site<-t(site_fraction[11:17,2:3])
+colnames(low_site)<-site_fraction$Site[11:17]
+barplot(low_site, xlab="Site", ylab="Average LAI", las=2,
+        main="Fraction of Shrub Species in Low Density Sites",
+        col=c("darkturquoise", "coral"),legend=rownames(low_site),beside=FALSE)
+
+
+#now plots for fraction within each plot (by density)
+plot_fraction<-arrange(plot_fraction, plot_fraction$Site)
+plot_fraction$Plot<-paste(plot_fraction$Site, plot_fraction$Plot)
+high_plot<-t(plot_fraction[1:30,3:4])
+colnames(high_plot)<-plot_fraction$Plot[1:30]
+barplot(high_plot, xlab="Site", ylab="Average LAI", las=2,
+        main="Fraction of Shrub Species in High Density Plots",
+        col=c("darkturquoise", "coral"),legend=rownames(high_plot),beside=FALSE)
+
+med_plot<-t(plot_fraction[52:73,3:4])
+colnames(med_plot)<-plot_fraction$Plot[52:73]
+barplot(med_plot, xlab="Site", ylab="Average LAI", las=2,
+        main="Fraction of Shrub Species in Medium Density Plots",
+        col=c("darkturquoise", "coral"),legend=rownames(med_plot),beside=FALSE)
+
+low_plot<-t(plot_fraction[31:51,3:4])
+colnames(low_plot)<-plot_fraction$Plot[31:51]
+barplot(low_plot, xlab="Site", ylab="Average LAI", las=2,
+        main="Fraction of Shrub Species in Low Density Plots",
+        col=c("darkturquoise", "coral"),legend=rownames(low_plot),beside=FALSE)
